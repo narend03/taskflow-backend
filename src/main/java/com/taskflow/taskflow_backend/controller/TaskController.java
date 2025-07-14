@@ -3,6 +3,7 @@ package com.taskflow.taskflow_backend.controller;
 import com.taskflow.taskflow_backend.model.NaturalLanguageRequest;
 import com.taskflow.taskflow_backend.model.Task;
 import com.taskflow.taskflow_backend.repository.TaskRepository;
+import com.taskflow.taskflow_backend.service.LlmTaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +16,14 @@ import java.util.UUID;
 @RequestMapping("/tasks")
 public class TaskController {
 
+    private final LlmTaskService llmService;
     private final TaskRepository taskRepository;
 
-    public TaskController(TaskRepository taskRepository) {
+    public TaskController(TaskRepository taskRepository, LlmTaskService llmService) {
         this.taskRepository = taskRepository;
+        this.llmService = llmService;
     }
+
 
     @PostMapping
     public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
@@ -64,20 +68,9 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/nl")
-    public ResponseEntity<Task> createTaskFromNaturalLanguage(@RequestBody NaturalLanguageRequest request) {
-        String input = request.getInput();
-
-        // 🧠 Simulated LLM processing (Replace with actual LLM call later)
-        Task task = new Task();
-        task.setTitle("Example: " + input);
-        task.setDescription("Auto-generated from: " + input);
-        task.setDueDate(LocalDate.now().plusDays(3));
-        task.setStatus("OPEN");
-        task.setPriority(3);
-
-        Task savedTask = taskRepository.save(task);
-        return ResponseEntity.status(201).body(savedTask);
+    @PostMapping("/from-nl")
+    public ResponseEntity<Task> fromNaturalLanguage(@RequestBody NaturalLanguageRequest req) throws Exception {
+        Task t = llmService.createTaskFromNaturalLanguage(req);
+        return ResponseEntity.status(201).body(t);
     }
-
 }
