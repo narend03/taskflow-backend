@@ -55,7 +55,7 @@ public class LlmTaskService {
         System.out.println("request: " + input);
 
         ResponseCreateParams params = ResponseCreateParams.builder()
-                .model(ChatModel.GPT_3_5_TURBO)    // or GPT_4 if you have access
+                .model(ChatModel.GPT_3_5_TURBO)    
                 .input(
                         "Convert the following into a task JSON with keys:\n" +
                                 " • title (string)\n" +
